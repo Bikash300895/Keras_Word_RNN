@@ -21,6 +21,7 @@ raw_text = new_raw_text
 # Create mapping of unique chars to integers
 chars = sorted(list(set(raw_text)))
 char_to_int = dict((c, i) for i, c in enumerate(chars))
+int_to_char = dict((i, c) for i, c in enumerate(chars))
 
 # sumarize
 n_chars = len(raw_text)
@@ -57,6 +58,10 @@ model.add(Dropout(0.2))
 model.add(LSTM(256))
 model.add(Dropout(0.2))
 model.add(Dense(y.shape[1], activation='softmax'))
+
+filename = "models/weights-improvement-78-0.0286-bigger.hdf5"
+model.load_weights(filename)
+
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 
@@ -68,5 +73,27 @@ callbacks_list = [checkpoint]
 model.fit(X, y, epochs=1000, batch_size=40, callbacks=callbacks_list)
 
 
-
+# pick a random seed
+start = numpy.random.randint(0, len(dataX)-1)
+pattern = dataX[start]
+print("Seed:")
+print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
+#writing output to a file
+fp = open('output.txt','w')
+st = ''
+# generate characters
+for i in range(1000):
+	x = numpy.reshape(pattern, (1, len(pattern), 1))
+	x = x / float(n_vocab)
+	prediction = model.predict(x, verbose=0)
+	index = numpy.argmax(prediction)
+	result = int_to_char[index]
+	seq_in = [int_to_char[value] for value in pattern]
+	sys.stdout.write(result)
+	st = st + str(result)
+	pattern.append(index)
+	pattern = pattern[1:len(pattern)]
+print("\nDone.")
+fp.write(st)
+fp.close()
 
