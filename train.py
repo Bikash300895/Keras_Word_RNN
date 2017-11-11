@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from keras.callbacks import ModelCheckpoint
@@ -38,6 +38,15 @@ for i in range(0, n_chars - seq_length, 1):
     dataY.append(char_to_int[seq_out])
 
 # total number of pattens
+n_patterns = len(dataX)
 
+# reshape X to be [samples, time steps, features]
+X = np.reshape(dataX, (n_patterns, seq_length, 1))
+
+# normalize
+X = X / float(n_vocab)
+
+# one hot encode the output variable
+y = np_utils.to_categorical(dataY)
 
 
